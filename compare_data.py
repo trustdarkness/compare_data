@@ -52,6 +52,11 @@ def main():
     gui()
   elif args.text:
     cui()
+  else: 
+    if DEFAULT_MODE == 'gui':
+      gui()
+    else: 
+      cui()
 
 def gui():
   filename = eg.fileopenbox(msg="Please choose an spss .sav file", title=TITLE)
