@@ -1,11 +1,21 @@
 #/usr/bin/python
 import savReaderWriter as spss
+import argparse
+import sys
+
+#CONSTANTS used throughout the program
+TITLE = "SPSS Compare Data"
+DEFAULT_MODE = "gui"
+try:
+  import easygui as eg
+except ImportError:
+  print "python-easygui required for graphical mode, running in console mode"
+  DEFAULT_MODE = "console"
 
 def column_run(record_list, test):
   records_per_coder = len(record_list)/2
   #current_record = record_list[0][0]
   #print "Current record: %s" % current_record
-  print "There will be %d records per coder" % records_per_coder
   # we assume there will only ever be 2 coders
   coder1 = []
   coder2 = []
@@ -26,9 +36,84 @@ def column_run(record_list, test):
   return (records_per_coder, coder1, coder2)
 
 def main():
+  """
+  Our main method, parses command line arguments and runs based on the user's
+  input
+  """
+  parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawTextHelpFormatter)
+  parser.add_argument("-g", "--gui", action="store_true", default=None,
+    help="Run in Graphical Mode (if supported)", dest="gui")
+  parser.add_argument("-t", "--test", action="store_true", default=None,
+    help="Run in Text Mode", dest="text")
+
+  args = parser.parse_args()
+  if args.gui:
+    gui()
+  elif args.text:
+    cui()
+
+def gui():
+  filename = eg.fileopenbox(msg="Please choose an spss .sav file", title=TITLE)
+  test = int(eg.enterbox(msg ="\n".join([
+    "I'm assuming column 0 is an ID that corresponds to a casefile", 
+    "such that there will be two records each with that ID, one for ",
+    "each data coder.",
+    "",
+    "Please enter another column number, starting with 0, to score:"
+  ]), title=TITLE))
+  record_list = []
+  # first we'll read in every record and add them all to the list
+  with spss.SavReader(filename) as f:
+    #header = next(f)
+    for line in f:
+      record_list.append(line)
+  tf = eg.boolbox(msg="\n".join([
+    "I found %d records.  If that's not what you" % len(record_list), 
+    "expected, please try again or contact the developer",
+    "Continue?"]), title=TITLE, choices=("Yes", "No"))
+  if not tf:
+    sys.exit(0)
+  records_per_coder, coder1, coder2 = column_run(record_list, test)
+  text = ["The data looks like: ", "#  Coder 1:  Coder 2: "]
+  agreement = 0
+  for i in range(records_per_coder):
+    text.append("%d   %d          %d " % (i, coder1[i], coder2[i]))
+    if coder1[i] == coder2[i]:
+      agreement += 1 
+  text.append("")
+  text.append("Would you like to add another column?")
+  tf = eg.boolbox(msg="\n".join(text), title=TITLE, choices=("Yes", "No"))
+  while tf:
+    column_num = int(eg.enterbox(msg="Please enter a column number: ", 
+      title=TITLE))
+    records_per_coder, new_coder1, new_coder2 = \
+      column_run(record_list, column_num)
+    coder1.extend(new_coder1)
+    coder2.extend(new_coder2)
+    tf = eg.boolbox(msg="Would you like to add another column?",
+      title=TITLE, choices=("Yes", "No"))
+  text = ["The data looks like: ", "#  Coder 1:  Coder 2: "]
+  agreement = 0
+  for i in range(len(coder1)):
+    text.append("%d   %d          %d " % (i, coder1[i], coder2[i]))
+    if coder1[i] == coder2[i]:
+      agreement += 1 
+  text.append("")
+  percent_agreement = (float(agreement)/float(len(coder1)))*100
+  text.append("There was %f %% agreement between the two coders" % \
+    percent_agreement)
+  text.append("Thanks for playing!")
+  eg.boolbox(msg="\n".join(text), title=TITLE, choices=("Exit", "Exit"))
+  sys.exit(0)
+
+
+def cui(): 
   filename = raw_input("Please enter a filename: ")
   print "--"
-  print "I'm assuming column 0 is a unique ID that corresponds to a casefile"
+  print "I'm assuming column 0 is an ID that corresponds to a casefile"
+  print "such that there will be two records each with that ID, one for "
+  print "each data coder."
   test = int(raw_input("Please give me a column number to score: "))
   record_list = []
   # first we'll read in every record and add them all to the list
@@ -45,7 +130,7 @@ def main():
 
   records_per_coder, coder1, coder2 = column_run(record_list, test)
   print "The data looks like: "
-  print "  Coder 1:  Coder 2: "
+  print "#  Coder 1:  Coder 2: "
   agreement = 0
   for i in range(records_per_coder):
     print "%d   %d       %d " % (i, coder1[i], coder2[i])
