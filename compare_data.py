@@ -1,7 +1,11 @@
 #/usr/bin/python
+"""Python stand alone script to compare data entered by two different people"""
+
 import savReaderWriter as spss
 import argparse
 import sys
+
+__author__ = "mt@trustdarkness.com (Mike Thompson)"
 
 #CONSTANTS used throughout the program
 TITLE = "SPSS Compare Data"
@@ -13,6 +17,17 @@ except ImportError:
   DEFAULT_MODE = "console"
 
 def column_run(record_list, test):
+  """Takes a record list and a column number and returns two separate lists, 
+  one for each coder, with the data run for the given column.
+
+  Args:
+    record_list: a list of lists, where each list in the parent list is one
+      spss "record" or basically a line in the spss file.
+    test:  a column number to test (TODO: rename this?)
+
+  Returns:
+    tuple like (records_per_coder (int), coder1 (list), coder2 (list))
+  """
   records_per_coder = len(record_list)/2
   #current_record = record_list[0][0]
   #print "Current record: %s" % current_record
@@ -59,6 +74,7 @@ def main():
       cui()
 
 def gui():
+  """Method to run the code in gui mode"""
   filename = eg.fileopenbox(msg="Please choose an spss .sav file", title=TITLE)
   test = int(eg.enterbox(msg ="\n".join([
     "I'm assuming column 0 is an ID that corresponds to a casefile", 
@@ -114,6 +130,7 @@ def gui():
 
 
 def cui(): 
+  """Run to program in text mode"""
   filename = raw_input("Please enter a filename: ")
   print "--"
   print "I'm assuming column 0 is an ID that corresponds to a casefile"
