@@ -35,18 +35,24 @@ def column_run(record_list, test):
   coder1 = []
   coder2 = []
   for i in range(0, records_per_coder):
-    coder1.append(None)
-    coder2.append(None)
+    coder1.append(665)
+    coder2.append(665)
 
   for record in record_list:
     index = int(record[0]) - 1
     # print "Processing record %d" % index
-    if coder1[index] == None:
+    if coder1[index] == 665:
       #print "record %d coder 2 = %d" % (index, record[test])
-      coder1[index] = record[test]
+      if record[test]:
+        coder1[index] = record[test]
+      else:
+        coder1[index] = 666
     else:
       #print "record %d coder 1 = %d" % (index, record[test])
-      coder2[index] = record[test]
+      if record[test]:
+        coder2[index] = record[test]
+      else: 
+        coder2[index] = 666
  
   return (records_per_coder, coder1, coder2)
 
@@ -96,10 +102,11 @@ def gui():
   if not tf:
     sys.exit(0)
   records_per_coder, coder1, coder2 = column_run(record_list, test)
-  text = ["The data looks like: ", "#  Coder 1:  Coder 2: "]
+  #text = ["The data looks like: ", "#  Coder 1:  Coder 2: "]
+  text = []
   agreement = 0
   for i in range(records_per_coder):
-    text.append("%d   %d          %d " % (i, coder1[i], coder2[i]))
+    #text.append("%s   %s          %s " % (i, coder1[i], coder2[i]))
     if coder1[i] == coder2[i]:
       agreement += 1 
   text.append("")
@@ -114,10 +121,11 @@ def gui():
     coder2.extend(new_coder2)
     tf = eg.boolbox(msg="Would you like to add another column?",
       title=TITLE, choices=("Yes", "No"))
-  text = ["The data looks like: ", "#  Coder 1:  Coder 2: "]
+  #text = ["The data looks like: ", "#  Coder 1:  Coder 2: "]
+  text = []
   agreement = 0
   for i in range(len(coder1)):
-    text.append("%d   %d          %d " % (i, coder1[i], coder2[i]))
+    #text.append("%s   %s          %s " % (i, coder1[i], coder2[i]))
     if coder1[i] == coder2[i]:
       agreement += 1 
   text.append("")
@@ -155,7 +163,7 @@ def cui():
   print "#  Coder 1:  Coder 2: "
   agreement = 0
   for i in range(records_per_coder):
-    print "%d   %d       %d " % (i, coder1[i], coder2[i])
+    print "%s   %s       %s " % (i, coder1[i], coder2[i])
     if coder1[i] == coder2[i]:
       agreement += 1
 
@@ -171,7 +179,7 @@ def cui():
   print "#  Coder 1:  Coder 2: "
   agreement = 0
   for i in range(len(coder1)):
-    print "%d   %d       %d " % (i, coder1[i], coder2[i])
+    print "%s   %s       %s " % (i, coder1[i], coder2[i])
     if coder1[i] == coder2[i]:
       agreement += 1
 
