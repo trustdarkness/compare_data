@@ -2,4 +2,4 @@
 from distutils.core import setup
 import py2exe
 
-setup(console=['compare_coders.py'])
+setup(console=['compare_spss_data.py'])
