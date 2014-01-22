@@ -1,6 +1,7 @@
 #Boa:Frame:compare_data_gui_main
 
 import wx
+import wx.lib.filebrowsebutton
 import wx.lib.stattext
 import savReaderWriter as spss
 
@@ -8,9 +9,8 @@ def create(parent):
     return compare_data_gui_main(parent)
 
 [wxID_COMPARE_DATA_GUI_MAIN, wxID_COMPARE_DATA_GUI_MAINBUTTON1, 
- wxID_COMPARE_DATA_GUI_MAINCOLUMNS, wxID_COMPARE_DATA_GUI_MAINFILENAME, 
- wxID_COMPARE_DATA_GUI_MAINGENSTATICTEXT1, 
- wxID_COMPARE_DATA_GUI_MAINGENSTATICTEXT2, 
+ wxID_COMPARE_DATA_GUI_MAINCOLUMNS, wxID_COMPARE_DATA_GUI_MAINGENSTATICTEXT1, 
+ wxID_COMPARE_DATA_GUI_MAINGENSTATICTEXT2, wxID_COMPARE_DATA_GUI_MAINPATH, 
  wxID_COMPARE_DATA_GUI_MAINSTATICTEXT1, wxID_COMPARE_DATA_GUI_MAINSTATICTEXT2, 
  wxID_COMPARE_DATA_GUI_MAINSTATICTEXT3, wxID_COMPARE_DATA_GUI_MAINWELCOME, 
 ] = [wx.NewId() for _init_ctrls in range(10)]
@@ -19,10 +19,16 @@ class compare_data_gui_main(wx.Frame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wx.Frame.__init__(self, id=wxID_COMPARE_DATA_GUI_MAIN,
-              name=u'compare_data_gui_main', parent=prnt, pos=wx.Point(306, 27),
-              size=wx.Size(1019, 559), style=wx.DEFAULT_FRAME_STYLE,
+              name=u'compare_data_gui_main', parent=prnt, pos=wx.Point(307, 29),
+              size=wx.Size(877, 485),
+              style=wx.TAB_TRAVERSAL | wx.SYSTEM_MENU | wx.DEFAULT_FRAME_STYLE,
               title=u'Compare SPSS Data')
-        self.SetClientSize(wx.Size(1019, 559))
+        self.SetClientSize(wx.Size(877, 485))
+        self.SetBackgroundStyle(wx.BG_STYLE_COLOUR)
+        self.SetThemeEnabled(True)
+        self.SetStatusBarPane(1)
+        self.SetHelpText(u'')
+        self.SetBackgroundColour(wx.Colour(200, 200, 200))
 
         self.Welcome = wx.StaticText(id=wxID_COMPARE_DATA_GUI_MAINWELCOME,
               label=u'Welcome to Compare Data!  We will compare data entered by two different "coders" that we hope is the same, but may have disagreements.',
@@ -38,51 +44,61 @@ class compare_data_gui_main(wx.Frame):
         self.columns = wx.TextCtrl(id=wxID_COMPARE_DATA_GUI_MAINCOLUMNS,
               name=u'columns', parent=self, pos=wx.Point(16, 208),
               size=wx.Size(136, 32), style=0, value=u'')
+        self.columns.SetThemeEnabled(True)
 
         self.staticText2 = wx.StaticText(id=wxID_COMPARE_DATA_GUI_MAINSTATICTEXT2,
-              label=u'Please enter a comma separated list of columns to check for agreement',
-              name='staticText2', parent=self, pos=wx.Point(16, 184),
-              size=wx.Size(472, 17), style=0)
+              label=u'Please enter a comma separated list of columns to check for agreement:',
+              name='staticText2', parent=self, pos=wx.Point(16, 192),
+              size=wx.Size(476, 17), style=0)
 
         self.staticText3 = wx.StaticText(id=wxID_COMPARE_DATA_GUI_MAINSTATICTEXT3,
-              label=u"Please enter the filename of an spss file to check.  This should be in the same path as the application you're running or should be given with the full path.",
-              name='staticText3', parent=self, pos=wx.Point(16, 88),
-              size=wx.Size(784, 72), style=0)
-
-        self.filename = wx.TextCtrl(id=wxID_COMPARE_DATA_GUI_MAINFILENAME,
-              name=u'filename', parent=self, pos=wx.Point(16, 128),
-              size=wx.Size(272, 27), style=0, value=u'')
+              label=u'Please choose an spss file to check:', name='staticText3',
+              parent=self, pos=wx.Point(16, 104), size=wx.Size(300, 20),
+              style=0)
 
         self.button1 = wx.Button(id=wxID_COMPARE_DATA_GUI_MAINBUTTON1,
               label=u'Evaluate it, Yo!', name='button1', parent=self,
-              pos=wx.Point(848, 512), size=wx.Size(160, 40), style=0)
+              pos=wx.Point(698, 424), size=wx.Size(168, 40), style=0)
         self.button1.Bind(wx.EVT_BUTTON, self.OnButton1Button,
               id=wxID_COMPARE_DATA_GUI_MAINBUTTON1)
 
         self.genStaticText1 = wx.lib.stattext.GenStaticText(ID=wxID_COMPARE_DATA_GUI_MAINGENSTATICTEXT1,
-              label=u'', name='genStaticText1', parent=self, pos=wx.Point(712,
-              352), size=wx.Size(200, 120), style=0)
+              label=u'', name='genStaticText1', parent=self, pos=wx.Point(555,
+            287), size=wx.Size(200, 120), style=0)
         self.genStaticText1.SetFont(wx.Font(76, wx.SWISS, wx.NORMAL, wx.NORMAL,
               False, u'Sans'))
+        self.genStaticText1.SetBackgroundStyle(wx.BG_STYLE_COLOUR)
+        self.genStaticText1.SetBackgroundColour(wx.Colour(200, 200, 200))
 
         self.genStaticText2 = wx.lib.stattext.GenStaticText(ID=wxID_COMPARE_DATA_GUI_MAINGENSTATICTEXT2,
-              label=u'', name='genStaticText2', parent=self, pos=wx.Point(808,
-              464), size=wx.Size(200, 23), style=0)
+              label=u'', name='genStaticText2', parent=self, pos=wx.Point(650,
+              392), size=wx.Size(200, 23), style=0)
         self.genStaticText2.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.NORMAL,
               False, u'Sans'))
+        self.genStaticText2.SetBackgroundColour(wx.Colour(200, 200, 200))
+
+        self.path = wx.lib.filebrowsebutton.FileBrowseButton(buttonText=u'Browse',
+              dialogTitle=u'Select a file', fileMask='*.*', fileMode=1,
+              id=wxID_COMPARE_DATA_GUI_MAINPATH, initialValue='',
+              labelText='Select a file:', parent=self, pos=wx.Point(16, 128),
+              size=wx.Size(448, 56), startDirectory='.', style=wx.THICK_FRAME,
+              toolTip='Type File name or browse to select')
+        self.path.SetBackgroundColour(wx.Colour(200, 200, 200))
+        self.path.SetToolTipString(u'path')
+        self.path.SetValue(u'')
+        self.path.SetLabel(u'Select a file:')
+        self.path.SetThemeEnabled(True)
 
     def __init__(self, parent):
         self._init_ctrls(parent)
 
     def OnButton1Button(self, event):
-        filename = self.filename.Value
+        filename = self.path.GetValue()
         columns = self.columns.Value.split(',')
         agreement = evaluate(filename, columns)
         self.genStaticText1.SetLabel("%.2f" % agreement)
         self.genStaticText2.SetLabel("Percent Agreement")
         event.Skip()
-
-
    
 
 def column_run(record_list, test):
