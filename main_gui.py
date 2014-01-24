@@ -150,10 +150,17 @@ def evaluate(filename, columns):
     coder1 = []
     coder2 = []
     for column_num in columns:
-        records_per_coder, new_coder1, new_coder2 = \
+      if type(column_num) == unicode and column_num.find("-"):
+        r = column_num.split("-")
+	print "[debug]: len(r) %s" % len(r)
+        if len(r) > 1:
+          column_num = r[0]
+          n = int(r[0])+1
+          columns.extend(range(n, int(r[1])))
+      records_per_coder, new_coder1, new_coder2 = \
             column_run(record_list, int(column_num))
-        coder1.extend(new_coder1)
-        coder2.extend(new_coder2)
+      coder1.extend(new_coder1)
+      coder2.extend(new_coder2)
         
     agreement = 0
     for i in range(len(coder1)):
